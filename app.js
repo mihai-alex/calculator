@@ -23,6 +23,8 @@ function addOperandEvents() {
 function operandEvents(key) {
     const button = document.getElementById(key);
     button.click();
+    button.classList.add("active");
+    setTimeout(() => button.classList.remove("active"), 90);
 }
 
 function keyEventHandler(event) {

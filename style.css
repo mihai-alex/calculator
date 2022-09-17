@@ -55,7 +55,7 @@ body {
     font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.05s;
+    transition: all 0.02s ease-out;
 }
 
 #key-container button:hover {
@@ -63,6 +63,10 @@ body {
 }
 
 #key-container button:active {
+    background-color: #707070;
+}
+
+#key-container .active {
     background-color: #707070;
 }
 
