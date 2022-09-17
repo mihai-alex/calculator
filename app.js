@@ -1,25 +1,43 @@
-function addKeyEvents(event) {
-    const keyPressed = event.key;
-    switch (keyPressed) {
+function updateOutput(text) {
+    const output = document.getElementById("result");
+    if (output.textContent === '0') {
+        output.textContent = '';
+    }
+    if (output.textContent.length < 10) {
+        output.textContent += text;
+    }
+}
+
+function operandEventsHandler(event) {
+    updateOutput(event.target.id);
+}
+
+function addOperandEvents() {
+    for (let digit = 0; digit <= 9; digit++) {
+        document
+            .getElementById(digit)
+            .addEventListener("click", operandEventsHandler);
+    }
+}
+
+function operandEvents(key) {
+    const button = document.getElementById(key);
+    button.click();
+}
+
+function keyEventHandler(event) {
+    switch (event.key) {
         case '1':
-            break;
         case '2':
-            break;
         case '3':
-            break;
         case '4':
-            break;
         case '5':
-            break;
         case '6':
-            break;
         case '7':
-            break;
         case '8':
-            break;
         case '9':
-            break;
         case '0':
+            operandEvents(event.key);
             break;
         case '=':
             break;
@@ -48,7 +66,8 @@ function addKeyEvents(event) {
 }
 
 function run() {
-    window.addEventListener('keydown', event => addKeyEvents(event));
+    addOperandEvents();
+    window.addEventListener('keydown', keyEventHandler);
 }
 
 window.onload = run;
