@@ -8,8 +8,9 @@ function updateOutput(text) {
     }
 }
 
-function operandEventsHandler(event) {
-    updateOutput(event.target.id);
+function addAllEvents() {
+    window.addEventListener('keydown', keyEventHandler);
+    addOperandEvents();
 }
 
 function addOperandEvents() {
@@ -20,11 +21,55 @@ function addOperandEvents() {
     }
 }
 
-function operandEvents(key) {
+function operandEventsHandler(event) {
+    updateOutput(event.target.id);
+}
+
+function highlighClickedButton(key) {
     const button = document.getElementById(key);
     button.click();
     button.classList.add("active");
     setTimeout(() => button.classList.remove("active"), 90);
+}
+
+function operandEvents(key) {
+    highlighClickedButton(key);
+}
+
+function equalsEvent(key) {
+    highlighClickedButton(key);
+}
+
+function moduloEvent(key) {
+    highlighClickedButton(key);
+}
+
+function divisionEvent(key) {
+    highlighClickedButton(key);
+}
+
+function multiplicationEvent(key) {
+    highlighClickedButton(key);
+}
+
+function subtractionEvent(key) {
+    highlighClickedButton(key);
+}
+
+function additionEvent(key) {
+    highlighClickedButton(key);
+}
+
+function commaEvent(key) {
+    highlighClickedButton(key);
+}
+
+function backspaceEvent(key) {
+    highlighClickedButton(key);
+}
+
+function allClearEvent(key) {
+    highlighClickedButton(key);
 }
 
 function keyEventHandler(event) {
@@ -42,25 +87,34 @@ function keyEventHandler(event) {
             operandEvents(event.key);
             break;
         case '=':
+            equalsEvent("equals");
             break;
         case '%':
+            moduloEvent("modulo");
             break;
         case '/':
+            divisionEvent("division");
             break;
         case '*':
         case 'x':
+            multiplicationEvent("multiplication");
             break;
         case '-':
+            subtractionEvent("subtraction");
             break;
         case '+':
+            additionEvent("addition");
             break;
         case ',':
         case '.':
+            commaEvent("comma");
             break;
         case "Backspace":
+            backspaceEvent("backspace");
             break;
         case "Delete":
         case "Escape":
+            allClearEvent("all-clear");
             break;
         default:
             break;
@@ -68,8 +122,7 @@ function keyEventHandler(event) {
 }
 
 function run() {
-    addOperandEvents();
-    window.addEventListener('keydown', keyEventHandler);
+    addAllEvents();
 }
 
 window.onload = run;
