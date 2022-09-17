@@ -58,8 +58,7 @@ body {
     transition: all 0.05s;
 }
 
-#key-container button:hover,
-#key-container button:focus {
+#key-container button:hover {
     background-color: #808080;
 }
 
