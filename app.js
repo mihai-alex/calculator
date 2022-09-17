@@ -1,9 +1,11 @@
-function updateOutput(text) {
+const MAX_NUM_DIGITS = 13;
+
+function updateOutputDigits(text) {
     const output = document.getElementById("result");
     if (output.textContent === '0') {
         output.textContent = '';
     }
-    if (output.textContent.length < 10) {
+    if (output.textContent.length < MAX_NUM_DIGITS) {
         output.textContent += text;
     }
 }
@@ -11,69 +13,155 @@ function updateOutput(text) {
 function addAllEvents() {
     window.addEventListener('keydown', keyEventHandler);
     addOperandEvents();
+    addEqualsEvent();
+    addModuloEvent();
+    addDivisionEvent();
+    addMultiplicationEvent();
+    addSubtractionEvent();
+    addAdditionEvent();
+    addPlusMinusEvent();
+    addCommaEvent();
+    addBackspaceEvent();
+    addAllClearEvent();
 }
 
 function addOperandEvents() {
-    for (let digit = 0; digit <= 9; digit++) {
-        document
-            .getElementById(digit)
-            .addEventListener("click", operandEventsHandler);
-    }
+    const operands = document.querySelectorAll(".operand");
+    operands.forEach(operand => operand.addEventListener("click", operandEventsHandler));
 }
 
 function operandEventsHandler(event) {
-    updateOutput(event.target.id);
+    updateOutputDigits(event.target.id);
 }
 
-function highlighClickedButton(key) {
+function addEqualsEvent() {
+    document
+        .getElementById("equals")
+        .addEventListener("click", equalsEventHandler);
+}
+
+function equalsEventHandler() {
+
+}
+
+function addModuloEvent() {
+    document
+        .getElementById("modulo")
+        .addEventListener("click", moduloEventHandler);
+}
+
+function moduloEventHandler() {
+
+}
+
+function addDivisionEvent() {
+    document
+        .getElementById("division")
+        .addEventListener("click", divisionEventHandler);
+}
+
+function divisionEventHandler() {
+
+}
+
+function addMultiplicationEvent() {
+    document
+        .getElementById("multiplication")
+        .addEventListener("click", multiplicationEventHandler);
+}
+
+function multiplicationEventHandler() {
+
+}
+
+function addSubtractionEvent() {
+    document
+        .getElementById("subtraction")
+        .addEventListener("click", subtractionEventHandler);
+}
+
+function subtractionEventHandler() {
+
+}
+
+function addAdditionEvent() {
+    document
+        .getElementById("addition")
+        .addEventListener("click", additionEventHandler);
+
+}
+
+function additionEventHandler() {
+
+}
+
+function addPlusMinusEvent() {
+    document
+        .getElementById("plus-minus")
+        .addEventListener("click", plusMinusEventHandler);
+}
+
+function plusMinusEventHandler() {
+    const output = document.getElementById("result");
+    if (output.textContent[0] === '-') {
+        output.textContent = output.textContent.slice(1);
+    } else if (output.textContent[0] !== '0' || output.textContent.length >= 2) {
+        output.textContent = '-' + output.textContent;
+    }
+}
+
+function addCommaEvent() {
+    document
+        .getElementById("comma")
+        .addEventListener("click", commaEventHandler);
+}
+
+function commaEventHandler() {
+    const output = document.getElementById("result");
+    if (output.textContent.length < 10 && output.textContent.search(',') === -1) {
+        output.textContent += ',';
+    }
+}
+
+function addBackspaceEvent() {
+    document
+        .getElementById("backspace")
+        .addEventListener("click", backspaceEventHandler);
+}
+
+function backspaceEventHandler() {
+    const output = document.getElementById("result");
+    output.textContent = output.textContent.slice(0, -1);
+    if (output.textContent.length === 2 && output.textContent === "-0") {
+        output.textContent = '0';
+    } else if (output.textContent.length === 1 && output.textContent === "-") {
+        output.textContent = '0';
+    } else if (output.textContent.length === 0) {
+        output.textContent = '0';
+    }
+}
+
+function addAllClearEvent() {
+    document
+        .getElementById("all-clear")
+        .addEventListener("click", allClearEventHandler);
+}
+
+function allClearEventHandler() {
+    const output = document.getElementById("result");
+    output.textContent = '0';
+}
+
+function keyEventClick(key) {
     const button = document.getElementById(key);
     button.click();
     button.classList.add("active");
     setTimeout(() => button.classList.remove("active"), 90);
 }
 
-function operandEvents(key) {
-    highlighClickedButton(key);
-}
-
-function equalsEvent(key) {
-    highlighClickedButton(key);
-}
-
-function moduloEvent(key) {
-    highlighClickedButton(key);
-}
-
-function divisionEvent(key) {
-    highlighClickedButton(key);
-}
-
-function multiplicationEvent(key) {
-    highlighClickedButton(key);
-}
-
-function subtractionEvent(key) {
-    highlighClickedButton(key);
-}
-
-function additionEvent(key) {
-    highlighClickedButton(key);
-}
-
-function commaEvent(key) {
-    highlighClickedButton(key);
-}
-
-function backspaceEvent(key) {
-    highlighClickedButton(key);
-}
-
-function allClearEvent(key) {
-    highlighClickedButton(key);
-}
-
 function keyEventHandler(event) {
-    switch (event.key) {
+    const key = event.key;
+    switch (key) {
         case '1':
         case '2':
         case '3':
@@ -84,37 +172,39 @@ function keyEventHandler(event) {
         case '8':
         case '9':
         case '0':
-            operandEvents(event.key);
+            keyEventClick(key);
             break;
         case '=':
-            equalsEvent("equals");
+            keyEventClick("equals");
             break;
         case '%':
-            moduloEvent("modulo");
+            keyEventClick("modulo");
             break;
         case '/':
-            divisionEvent("division");
+            keyEventClick("division");
             break;
         case '*':
-        case 'x':
-            multiplicationEvent("multiplication");
+            keyEventClick("multiplication");
             break;
         case '-':
-            subtractionEvent("subtraction");
+            keyEventClick("subtraction");
             break;
         case '+':
-            additionEvent("addition");
+            keyEventClick("addition");
+            break;
+        case 'n':
+            keyEventClick("plus-minus");
             break;
         case ',':
         case '.':
-            commaEvent("comma");
+            keyEventClick("comma");
             break;
         case "Backspace":
-            backspaceEvent("backspace");
+            keyEventClick("backspace");
             break;
         case "Delete":
         case "Escape":
-            allClearEvent("all-clear");
+            keyEventClick("all-clear");
             break;
         default:
             break;
