@@ -2,16 +2,16 @@ const MAX_NUM_DIGITS = 13;
 const MAX_SCIENTIFIC_NOTATION = 6
 
 let currentExpression = {
-    previousOperand: 0,
+    previousOperand: null,
     operator: null,
-    currentOperand: 0,
+    currentOperand: null,
     emptyDisplayFlag: false,
 };
 
 function resetCurrentExpression() {
-    currentExpression.previousOperand = 0;
+    currentExpression.previousOperand = null;
     currentExpression.operator = null;
-    currentExpression.currentOperand = 0;
+    currentExpression.currentOperand = null;
     currentExpression.emptyDisplayFlag = false;
 }
 
@@ -66,11 +66,13 @@ function addEqualsEvent() {
 }
 
 function equalsEventHandler() {
-    if (currentExpression.operator === null) {
+    if (currentExpression.operator === null ||
+        currentExpression.previousOperand === null ||
+        currentExpression.currentOperand === null) {
         return;
     }
 
-    let result = 0;
+    let result = null;
     let previousOperand = currentExpression.previousOperand;
     let currentOperand = currentExpression.currentOperand;
     if (isInScientificNotation(previousOperand) === true) {
@@ -114,7 +116,7 @@ function equalsEventHandler() {
     }
 
     currentExpression.previousOperand = parseFloat(result);
-    currentExpression.currentOperand = 0;
+    currentExpression.currentOperand = null;
     currentExpression.operator = null;
     const output = document.getElementById("result");
     output.textContent = result;
