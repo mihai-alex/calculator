@@ -219,10 +219,10 @@ function plusMinusEventHandler() {
         output.textContent = '-' + output.textContent;
     }
 
-    if (currentExpression.currentOperand !== 0) {
+    if (currentExpression.currentOperand !== null) {
         currentExpression.currentOperand = -currentExpression.currentOperand;
     }
-    else if (currentExpression.previousOperand !== 0) {
+    else if (currentExpression.previousOperand !== null) {
         currentExpression.previousOperand = -currentExpression.previousOperand;
     }
 }
