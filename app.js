@@ -85,7 +85,11 @@ function equalsEventHandler() {
     currentOperand = parseFloat(currentOperand);
     switch (currentExpression.operator) {
         case "%":
-            // TODO: implement modulo functionality
+            /*
+            Operation adapted from "The JavaScript Modulo Bug - How to Fix It." article:
+            https://web.archive.org/web/20090717035140if_/javascript.about.com/od/problemsolving/a/modulobug.htm
+            */
+            result = ((previousOperand % currentOperand) + currentOperand) % currentOperand;
             break;
         case '/':
             // TODO: display error - division by 0!
@@ -109,6 +113,7 @@ function equalsEventHandler() {
     if (result.toString().length > MAX_NUM_DIGITS) {
         if (Math.floor(result) != result) {
             result = result.toString().substring(0, MAX_NUM_DIGITS);
+            result = parseFloat(result).toString();  // remove trailing zeros
         }
         else {
             result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
