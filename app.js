@@ -5,23 +5,21 @@ let currentExpression = {
     previousOperand: 0,
     operator: null,
     currentOperand: 0,
-    existingEquals: false,
-    resetOutput: false
+    emptyDisplayFlag: false,
 };
 
 function resetCurrentExpression() {
     currentExpression.previousOperand = 0;
     currentExpression.operator = null;
     currentExpression.currentOperand = 0;
-    currentExpression.existingEquals = false;
-    currentExpression.resetOutput = false;
+    currentExpression.emptyDisplayFlag = false;
 }
 
 function updateOutputDigits(text) {
     const output = document.getElementById("result");
-    if (output.textContent === '0' || currentExpression.resetOutput !== false) {
-        currentExpression.resetOutput = false;
+    if (output.textContent === '0' || currentExpression.emptyDisplayFlag) {
         output.textContent = '';
+        currentExpression.emptyDisplayFlag = false;
     }
 
     if (output.textContent.length < MAX_NUM_DIGITS) {
@@ -31,12 +29,6 @@ function updateOutputDigits(text) {
 
     if (currentExpression.operator === null) {
         currentExpression.previousOperand = operand;
-    }
-    else if (currentExpression.existingEquals === true) {
-        currentExpression.previousOperand = operand;
-        currentExpression.operator = null;
-        currentExpression.currentOperand = 0;
-        currentExpression.existingEquals = false;
     }
     else {
         currentExpression.currentOperand = operand;
@@ -74,45 +66,47 @@ function addEqualsEvent() {
 }
 
 function equalsEventHandler() {
-    let result = NaN;
-    if (currentExpression.operator) {
-        let previousOperand = currentExpression.previousOperand;
-        let currentOperand = currentExpression.currentOperand;
-        if (isInScientificNotation(previousOperand) === true) {
-            previousOperand = convertFromScientificNotation(previousOperand);
-        }
-        if (isInScientificNotation(currentOperand) === true) {
-            currentOperand = convertFromScientificNotation(currentOperand);
-        }
-        previousOperand = parseFloat(previousOperand);
-        currentOperand = parseFloat(currentOperand);
-        switch (currentExpression.operator) {
-            case "%":
-                // TODO: implement modulo functionality
-                break;
-            case '/':
-                if (currentOperand === 0) {
-                    // TODO: display error - division by 0!
-                    alert("Division by 0!");
-                }
-                result = previousOperand / currentOperand;
-                break;
-            case '*':
-                result = previousOperand * currentOperand;
-                break;
-            case '-':
-                result = previousOperand - currentOperand;
-                break;
-            case '+':
-                result = previousOperand + currentOperand;
-                break;
-            case null:
-                return;
-            default:
-                break;
-        }
+    if (currentExpression.operator === null) {
+        return;
     }
-    currentExpression.existingEquals = true;
+
+    let result = 0;
+    let previousOperand = currentExpression.previousOperand;
+    let currentOperand = currentExpression.currentOperand;
+    if (isInScientificNotation(previousOperand) === true) {
+        previousOperand = convertFromScientificNotation(previousOperand);
+    }
+    if (isInScientificNotation(currentOperand) === true) {
+        currentOperand = convertFromScientificNotation(currentOperand);
+    }
+    previousOperand = parseFloat(previousOperand);
+    currentOperand = parseFloat(currentOperand);
+    switch (currentExpression.operator) {
+        case "%":
+            // TODO: implement modulo functionality
+            break;
+        case '/':
+            if (currentOperand === 0) {
+                // TODO: display error - division by 0!
+                alert("Division by 0!");
+            }
+            result = previousOperand / currentOperand;
+            break;
+        case '*':
+            result = previousOperand * currentOperand;
+            break;
+        case '-':
+            result = previousOperand - currentOperand;
+            break;
+        case '+':
+            result = previousOperand + currentOperand;
+            break;
+        case null:
+            return;
+        default:
+            break;
+    }
+
     if (result.toString().length > MAX_NUM_DIGITS) {
         if (Math.floor(result) != result) {
             result = result.toString().substring(0, MAX_NUM_DIGITS);
@@ -121,7 +115,12 @@ function equalsEventHandler() {
             result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
         }
     }
-    updateOutputDigits(result);
+
+    currentExpression.previousOperand = parseFloat(result);
+    currentExpression.currentOperand = 0;
+    currentExpression.operator = null;
+    const output = document.getElementById("result");
+    output.textContent = result;
 }
 
 function isInScientificNotation(number) {
@@ -139,6 +138,11 @@ function addModuloEvent() {
 }
 
 function moduloEventHandler() {
+    // compound operators
+    if (currentExpression.operator) {
+        equalsEventHandler();
+    }
+    currentExpression.emptyDisplayFlag = true;
     currentExpression.operator = '%';
 }
 
@@ -149,6 +153,11 @@ function addDivisionEvent() {
 }
 
 function divisionEventHandler() {
+    // compound operators
+    if (currentExpression.operator) {
+        equalsEventHandler();
+    }
+    currentExpression.emptyDisplayFlag = true;
     currentExpression.operator = '/';
 }
 
@@ -159,6 +168,11 @@ function addMultiplicationEvent() {
 }
 
 function multiplicationEventHandler() {
+    // compound operators
+    if (currentExpression.operator) {
+        equalsEventHandler();
+    }
+    currentExpression.emptyDisplayFlag = true;
     currentExpression.operator = '*';
 }
 
@@ -169,6 +183,11 @@ function addSubtractionEvent() {
 }
 
 function subtractionEventHandler() {
+    // compound operators
+    if (currentExpression.operator) {
+        equalsEventHandler();
+    }
+    currentExpression.emptyDisplayFlag = true;
     currentExpression.operator = '-';
 }
 
@@ -176,10 +195,14 @@ function addAdditionEvent() {
     document
         .getElementById("addition")
         .addEventListener("click", additionEventHandler);
-
 }
 
 function additionEventHandler() {
+    // compound operators
+    if (currentExpression.operator) {
+        equalsEventHandler();
+    }
+    currentExpression.emptyDisplayFlag = true;
     currentExpression.operator = '+';
 }
 
@@ -277,13 +300,6 @@ function keyEventClick(key) {
     setTimeout(() => button.classList.remove("active"), 90);
 }
 
-function compoundOperatorEquals() {
-    if (currentExpression.operator && currentExpression.previousOperand) {
-        currentExpression.resetOutput = true;
-        document.getElementById("equals").click();
-    }
-}
-
 function keyEventHandler(event) {
     const key = event.key;
     switch (key) {
@@ -300,32 +316,21 @@ function keyEventHandler(event) {
             keyEventClick(key);
             break;
         case '=':
-            currentExpression.resetOutput = true;
             keyEventClick("equals");
             break;
         case '%':
-            compoundOperatorEquals();
-            currentExpression.resetOutput = true;
             keyEventClick("modulo");
             break;
         case '/':
-            compoundOperatorEquals();
-            currentExpression.resetOutput = true;
             keyEventClick("division");
             break;
         case '*':
-            compoundOperatorEquals();
-            currentExpression.resetOutput = true;
             keyEventClick("multiplication");
             break;
         case '-':
-            compoundOperatorEquals();
-            currentExpression.resetOutput = true;
             keyEventClick("subtraction");
             break;
         case '+':
-            compoundOperatorEquals();
-            currentExpression.resetOutput = true;
             keyEventClick("addition");
             break;
         case 'n':
