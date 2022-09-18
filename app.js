@@ -86,10 +86,7 @@ function equalsEventHandler() {
             // TODO: implement modulo functionality
             break;
         case '/':
-            if (currentOperand === 0) {
-                // TODO: display error - division by 0!
-                alert("Division by 0!");
-            }
+            // TODO: display error - division by 0!
             result = previousOperand / currentOperand;
             break;
         case '*':
@@ -139,7 +136,7 @@ function addModuloEvent() {
 
 function moduloEventHandler() {
     // compound operators
-    if (currentExpression.operator) {
+    if (currentExpression.operator && currentExpression.currentOperand) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
@@ -154,7 +151,7 @@ function addDivisionEvent() {
 
 function divisionEventHandler() {
     // compound operators
-    if (currentExpression.operator) {
+    if (currentExpression.operator && currentExpression.currentOperand) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
@@ -169,7 +166,7 @@ function addMultiplicationEvent() {
 
 function multiplicationEventHandler() {
     // compound operators
-    if (currentExpression.operator) {
+    if (currentExpression.operator && currentExpression.currentOperand) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
@@ -184,7 +181,7 @@ function addSubtractionEvent() {
 
 function subtractionEventHandler() {
     // compound operators
-    if (currentExpression.operator) {
+    if (currentExpression.operator && currentExpression.currentOperand) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
@@ -199,7 +196,7 @@ function addAdditionEvent() {
 
 function additionEventHandler() {
     // compound operators
-    if (currentExpression.operator) {
+    if (currentExpression.operator && currentExpression.currentOperand) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
