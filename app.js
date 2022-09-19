@@ -75,7 +75,7 @@ function addEqualsEvent() {
         .addEventListener("click", equalsEventHandler);
 }
 
-function equalsEventHandler() {
+function compoundEqualsUtility() {
     // compound equals operation
     if (currentExpression.previouslyPressedEquals === true) {
         currentExpression.firstOperand =
@@ -83,13 +83,36 @@ function equalsEventHandler() {
         currentExpression.secondOperand = currentExpression.lastSecondOperand;
         currentExpression.operator = currentExpression.lastOperator;
     }
+}
 
+function truncateResult(result) {
+    if (Math.floor(result) != result) {
+        result = result.toString().substring(0, MAX_NUM_DIGITS);
+        result = parseFloat(result).toString();  // remove trailing zeros
+    }
+    else {
+        result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
+    }
+    return result;
+}
+
+function updateExpressionResult(result) {
+    currentExpression.firstOperand = parseFloat(result);
+    currentExpression.lastSecondOperand = currentExpression.secondOperand;
+    currentExpression.secondOperand = null;
+    currentExpression.operator = null;
+    const output = document.getElementById("result");
+    output.textContent = result;
+    currentExpression.previouslyPressedEquals = true;
+}
+
+function equalsEventHandler() {
+    compoundEqualsUtility();
     if (currentExpression.operator === null ||
         currentExpression.firstOperand === null ||
         currentExpression.secondOperand === null) {
         return;
     }
-
     let result = null;
     let previousOperand = currentExpression.firstOperand;
     let currentOperand = currentExpression.secondOperand;
@@ -147,21 +170,9 @@ function equalsEventHandler() {
     }
 
     if (result.toString().length > MAX_NUM_DIGITS) {
-        if (Math.floor(result) != result) {
-            result = result.toString().substring(0, MAX_NUM_DIGITS);
-            result = parseFloat(result).toString();  // remove trailing zeros
-        }
-        else {
-            result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
-        }
+        result = truncateResult(result);
     }
-    currentExpression.firstOperand = parseFloat(result);
-    currentExpression.lastSecondOperand = currentExpression.secondOperand;
-    currentExpression.secondOperand = null;
-    currentExpression.operator = null;
-    const output = document.getElementById("result");
-    output.textContent = result;
-    currentExpression.previouslyPressedEquals = true;
+    updateExpressionResult(result);
 }
 
 function isInScientificNotation(number) {
