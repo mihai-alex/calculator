@@ -7,7 +7,7 @@ body {
 }
 
 #app-container {
-    height: 540px;
+    height: 541px;
     font-family: 'Roboto', sans-serif;
     display: flex;
     flex-direction: column;
@@ -41,7 +41,7 @@ body {
     border-style: solid;
     border-radius: 12px;
     border-width: 1px;
-    border-color: gray;
+    border-color: rgba(128, 128, 128, 0.6);
 }
 
 #display-container #result {
@@ -68,6 +68,8 @@ body {
     border-color: #000000;
     border-radius: 8px;
     gap: 3px;
+    margin-bottom: -5px;
+    margin-top: 2px;
 }
 
 #key-container button {
