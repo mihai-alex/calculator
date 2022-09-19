@@ -22,7 +22,28 @@ function resetCurrentExpression() {
     currentExpression.lastSecondOperand = null;
 }
 
+function updateHistory() {
+    let expression = "";
+    if (currentExpression.firstOperand !== null) {
+        expression += currentExpression.firstOperand + ' ';
+        if (currentExpression.operator !== null) {
+            expression += currentExpression.operator + ' ';
+            if (currentExpression.secondOperand !== null) {
+                expression += currentExpression.secondOperand + ' ';
+                if (currentExpression.previouslyPressedEquals !== null) {
+                    expression += '= ';
+                }
+            }
+        }
+    }
+    const history = document.getElementById("history");
+    history.textContent = expression;
+}
+
 function updateOutputDigits(text) {
+    if (currentExpression.firstOperand === null) {
+        updateHistory();
+    }
     const output = document.getElementById("result");
     if (output.textContent === '0' ||
         currentExpression.emptyDisplayFlag ||
@@ -136,6 +157,8 @@ function equalsEventHandler() {
                 output.textContent = ERROR_DIVISION_BY_ZERO;
                 resetCurrentExpression();
                 currentExpression.emptyDisplayFlag = true;
+                document.getElementById("history").textContent =
+                    'Press "AC", ">" or any digit to continue.';
                 return;
             }
             result = ((previousOperand % currentOperand) + currentOperand) % currentOperand;
@@ -147,6 +170,8 @@ function equalsEventHandler() {
                 output.textContent = ERROR_DIVISION_BY_ZERO;
                 resetCurrentExpression();
                 currentExpression.emptyDisplayFlag = true;
+                document.getElementById("history").textContent =
+                    'Press "AC", \'>\' or any digit to continue.';
                 return;
             }
             result = previousOperand / currentOperand;
@@ -172,6 +197,7 @@ function equalsEventHandler() {
     if (result.toString().length > MAX_NUM_DIGITS) {
         result = truncateResult(result);
     }
+    updateHistory();
     updateExpressionResult(result);
 }
 
@@ -200,6 +226,9 @@ function moduloEventHandler() {
     if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '%';
     }
+    if (currentExpression.firstOperand !== null) {
+        updateHistory();
+    }
 }
 
 function addDivisionEvent() {
@@ -218,6 +247,9 @@ function divisionEventHandler() {
     currentExpression.emptyDisplayFlag = true;
     if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '/';
+    }
+    if (currentExpression.firstOperand !== null) {
+        updateHistory();
     }
 }
 
@@ -238,6 +270,9 @@ function multiplicationEventHandler() {
     if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '*';
     }
+    if (currentExpression.firstOperand !== null) {
+        updateHistory();
+    }
 }
 
 function addSubtractionEvent() {
@@ -257,6 +292,9 @@ function subtractionEventHandler() {
     if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '-';
     }
+    if (currentExpression.firstOperand !== null) {
+        updateHistory();
+    }
 }
 
 function addAdditionEvent() {
@@ -275,6 +313,9 @@ function additionEventHandler() {
     currentExpression.emptyDisplayFlag = true;
     if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '+';
+    }
+    if (currentExpression.firstOperand !== null) {
+        updateHistory();
     }
 }
 
@@ -348,6 +389,7 @@ function backspaceEventHandler() {
     }
 
     if (currentExpression.previouslyPressedEquals === true) {
+        document.getElementById("history").textContent = '';
         return;
     }
 
@@ -390,6 +432,7 @@ function allClearEventHandler() {
     const output = document.getElementById("result");
     output.textContent = '0';
     resetCurrentExpression();
+    updateHistory();
     currentExpression.firstOperand = 0;
 }
 

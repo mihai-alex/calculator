@@ -54,7 +54,7 @@ body {
     font-size: 13px;
     margin-right: 8px;
     margin-bottom: 6px;
-    color: #a8a8a8aa;
+    color: rgba(190, 190, 190, 0.667);
 }
 
 #key-container {
