@@ -347,7 +347,7 @@ function backspaceEventHandler() {
 
     // check if there is nothing after '.' or just trailing zeros
     const indexOfComma = output.textContent.indexOf('.');
-    if (/^0*$/.test(output.textContent.slice(indexOfComma + 1))) {
+    if (indexOfComma !== -1 && /^0*$/.test(output.textContent.slice(indexOfComma + 1))) {
         output.textContent = output.textContent.slice(0, -1);
         return;
     }
