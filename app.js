@@ -3,19 +3,23 @@ const MAX_SCIENTIFIC_NOTATION = 6
 const ERROR_DIVISION_BY_ZERO = "Can't divide by 0!";
 
 let currentExpression = {
-    previousOperand: 0,
+    firstOperand: 0,
     operator: null,
-    currentOperand: null,
+    secondOperand: null,
     emptyDisplayFlag: false,
     previouslyPressedEquals: false,
+    lastOperator: null,
+    lastSecondOperand: null,
 };
 
 function resetCurrentExpression() {
-    currentExpression.previousOperand = null;
+    currentExpression.firstOperand = null;
     currentExpression.operator = null;
-    currentExpression.currentOperand = null;
+    currentExpression.secondOperand = null;
     currentExpression.emptyDisplayFlag = false;
     currentExpression.previouslyPressedEquals = false;
+    currentExpression.lastOperator = null;
+    currentExpression.lastSecondOperand = null;
 }
 
 function updateOutputDigits(text) {
@@ -34,10 +38,10 @@ function updateOutputDigits(text) {
     const operand = parseFloat(output.textContent);
 
     if (currentExpression.operator === null) {
-        currentExpression.previousOperand = operand;
+        currentExpression.firstOperand = operand;
     }
     else {
-        currentExpression.currentOperand = operand;
+        currentExpression.secondOperand = operand;
     }
 }
 
@@ -72,15 +76,23 @@ function addEqualsEvent() {
 }
 
 function equalsEventHandler() {
+    // compound equals operation
+    if (currentExpression.previouslyPressedEquals === true) {
+        currentExpression.firstOperand =
+            parseFloat(document.getElementById("result").textContent);
+        currentExpression.secondOperand = currentExpression.lastSecondOperand;
+        currentExpression.operator = currentExpression.lastOperator;
+    }
+
     if (currentExpression.operator === null ||
-        currentExpression.previousOperand === null ||
-        currentExpression.currentOperand === null) {
+        currentExpression.firstOperand === null ||
+        currentExpression.secondOperand === null) {
         return;
     }
 
     let result = null;
-    let previousOperand = currentExpression.previousOperand;
-    let currentOperand = currentExpression.currentOperand;
+    let previousOperand = currentExpression.firstOperand;
+    let currentOperand = currentExpression.secondOperand;
     if (isInScientificNotation(previousOperand) === true) {
         previousOperand = convertFromScientificNotation(previousOperand);
     }
@@ -95,6 +107,7 @@ function equalsEventHandler() {
             Operation adapted from "The JavaScript Modulo Bug - How to Fix It." article:
             https://web.archive.org/web/20090717035140if_/javascript.about.com/od/problemsolving/a/modulobug.htm
             */
+            currentExpression.lastOperator = '%';
             if (currentOperand === 0) {
                 const output = document.getElementById("result");
                 output.textContent = ERROR_DIVISION_BY_ZERO;
@@ -105,6 +118,7 @@ function equalsEventHandler() {
             result = ((previousOperand % currentOperand) + currentOperand) % currentOperand;
             break;
         case '/':
+            currentExpression.lastOperator = '/';
             if (currentOperand === 0) {
                 const output = document.getElementById("result");
                 output.textContent = ERROR_DIVISION_BY_ZERO;
@@ -115,12 +129,15 @@ function equalsEventHandler() {
             result = previousOperand / currentOperand;
             break;
         case '*':
+            currentExpression.lastOperator = '*';
             result = previousOperand * currentOperand;
             break;
         case '-':
+            currentExpression.lastOperator = '-';
             result = previousOperand - currentOperand;
             break;
         case '+':
+            currentExpression.lastOperator = '+';
             result = previousOperand + currentOperand;
             break;
         case null:
@@ -138,8 +155,9 @@ function equalsEventHandler() {
             result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
         }
     }
-    currentExpression.previousOperand = parseFloat(result);
-    currentExpression.currentOperand = null;
+    currentExpression.firstOperand = parseFloat(result);
+    currentExpression.lastSecondOperand = currentExpression.secondOperand;
+    currentExpression.secondOperand = null;
     currentExpression.operator = null;
     const output = document.getElementById("result");
     output.textContent = result;
@@ -162,13 +180,13 @@ function addModuloEvent() {
 
 function moduloEventHandler() {
     // compound operators
-    if (currentExpression.previousOperand !== null &&
+    if (currentExpression.firstOperand !== null &&
         currentExpression.operator &&
-        currentExpression.currentOperand !== null) {
+        currentExpression.secondOperand !== null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    if (currentExpression.previousOperand !== null) {
+    if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '%';
     }
 }
@@ -181,13 +199,13 @@ function addDivisionEvent() {
 
 function divisionEventHandler() {
     // compound operators
-    if (currentExpression.previousOperand !== null &&
+    if (currentExpression.firstOperand !== null &&
         currentExpression.operator &&
-        currentExpression.currentOperand !== null) {
+        currentExpression.secondOperand !== null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    if (currentExpression.previousOperand !== null) {
+    if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '/';
     }
 }
@@ -200,13 +218,13 @@ function addMultiplicationEvent() {
 
 function multiplicationEventHandler() {
     // compound operators
-    if (currentExpression.previousOperand !== null &&
+    if (currentExpression.firstOperand !== null &&
         currentExpression.operator &&
-        currentExpression.currentOperand != null) {
+        currentExpression.secondOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    if (currentExpression.previousOperand !== null) {
+    if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '*';
     }
 }
@@ -219,13 +237,13 @@ function addSubtractionEvent() {
 
 function subtractionEventHandler() {
     // compound operators
-    if (currentExpression.previousOperand !== null &&
+    if (currentExpression.firstOperand !== null &&
         currentExpression.operator &&
-        currentExpression.currentOperand != null) {
+        currentExpression.secondOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    if (currentExpression.previousOperand !== null) {
+    if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '-';
     }
 }
@@ -238,13 +256,13 @@ function addAdditionEvent() {
 
 function additionEventHandler() {
     // compound operators
-    if (currentExpression.previousOperand !== null &&
+    if (currentExpression.firstOperand !== null &&
         currentExpression.operator &&
-        currentExpression.currentOperand != null) {
+        currentExpression.secondOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    if (currentExpression.previousOperand !== null) {
+    if (currentExpression.firstOperand !== null) {
         currentExpression.operator = '+';
     }
 }
@@ -266,11 +284,11 @@ function plusMinusEventHandler() {
         output.textContent = '-' + output.textContent;
     }
 
-    if (currentExpression.currentOperand !== null) {
-        currentExpression.currentOperand = -currentExpression.currentOperand;
+    if (currentExpression.secondOperand !== null) {
+        currentExpression.secondOperand = -currentExpression.secondOperand;
     }
-    else if (currentExpression.previousOperand !== null) {
-        currentExpression.previousOperand = -currentExpression.previousOperand;
+    else if (currentExpression.firstOperand !== null) {
+        currentExpression.firstOperand = -currentExpression.firstOperand;
     }
 }
 
@@ -323,7 +341,7 @@ function backspaceEventHandler() {
     }
 
     // case: if expression has operator, but the second operand is null, SHOULD NOT remove ANY digits:
-    if (currentExpression.operator && currentExpression.currentOperand === null) {
+    if (currentExpression.operator && currentExpression.secondOperand === null) {
         return;
     }
 
@@ -343,11 +361,11 @@ function backspaceEventHandler() {
         output.textContent = '0';
     }
 
-    if (currentExpression.currentOperand) {
-        currentExpression.currentOperand = removeLastDigit(currentExpression.currentOperand);
+    if (currentExpression.secondOperand) {
+        currentExpression.secondOperand = removeLastDigit(currentExpression.secondOperand);
     }
-    else if (currentExpression.previousOperand) {
-        currentExpression.previousOperand = removeLastDigit(currentExpression.previousOperand);
+    else if (currentExpression.firstOperand) {
+        currentExpression.firstOperand = removeLastDigit(currentExpression.firstOperand);
     }
 }
 
@@ -361,7 +379,7 @@ function allClearEventHandler() {
     const output = document.getElementById("result");
     output.textContent = '0';
     resetCurrentExpression();
-    currentExpression.previousOperand = 0;
+    currentExpression.firstOperand = 0;
 }
 
 function keyEventClick(key) {
