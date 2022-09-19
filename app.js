@@ -1,11 +1,13 @@
 const MAX_NUM_DIGITS = 13;
 const MAX_SCIENTIFIC_NOTATION = 6
+const ERROR_DIVISION_BY_ZERO = "Can't divide by 0!";
 
 let currentExpression = {
-    previousOperand: null,
+    previousOperand: 0,
     operator: null,
     currentOperand: null,
     emptyDisplayFlag: false,
+    previouslyPressedEquals: false,
 };
 
 function resetCurrentExpression() {
@@ -13,13 +15,17 @@ function resetCurrentExpression() {
     currentExpression.operator = null;
     currentExpression.currentOperand = null;
     currentExpression.emptyDisplayFlag = false;
+    currentExpression.previouslyPressedEquals = false;
 }
 
 function updateOutputDigits(text) {
     const output = document.getElementById("result");
-    if (output.textContent === '0' || currentExpression.emptyDisplayFlag) {
+    if (output.textContent === '0' ||
+        currentExpression.emptyDisplayFlag ||
+        currentExpression.previouslyPressedEquals) {
         output.textContent = '';
         currentExpression.emptyDisplayFlag = false;
+        currentExpression.previouslyPressedEquals = false;
     }
 
     if (output.textContent.length < MAX_NUM_DIGITS) {
@@ -89,10 +95,23 @@ function equalsEventHandler() {
             Operation adapted from "The JavaScript Modulo Bug - How to Fix It." article:
             https://web.archive.org/web/20090717035140if_/javascript.about.com/od/problemsolving/a/modulobug.htm
             */
+            if (currentOperand === 0) {
+                const output = document.getElementById("result");
+                output.textContent = ERROR_DIVISION_BY_ZERO;
+                resetCurrentExpression();
+                currentExpression.emptyDisplayFlag = true;
+                return;
+            }
             result = ((previousOperand % currentOperand) + currentOperand) % currentOperand;
             break;
         case '/':
-            // TODO: display error - division by 0!
+            if (currentOperand === 0) {
+                const output = document.getElementById("result");
+                output.textContent = ERROR_DIVISION_BY_ZERO;
+                resetCurrentExpression();
+                currentExpression.emptyDisplayFlag = true;
+                return;
+            }
             result = previousOperand / currentOperand;
             break;
         case '*':
@@ -119,12 +138,12 @@ function equalsEventHandler() {
             result = result.toExponential(MAX_SCIENTIFIC_NOTATION);
         }
     }
-
     currentExpression.previousOperand = parseFloat(result);
     currentExpression.currentOperand = null;
     currentExpression.operator = null;
     const output = document.getElementById("result");
     output.textContent = result;
+    currentExpression.previouslyPressedEquals = true;
 }
 
 function isInScientificNotation(number) {
@@ -143,11 +162,15 @@ function addModuloEvent() {
 
 function moduloEventHandler() {
     // compound operators
-    if (currentExpression.operator && currentExpression.currentOperand) {
+    if (currentExpression.previousOperand !== null &&
+        currentExpression.operator &&
+        currentExpression.currentOperand !== null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    currentExpression.operator = '%';
+    if (currentExpression.previousOperand !== null) {
+        currentExpression.operator = '%';
+    }
 }
 
 function addDivisionEvent() {
@@ -158,11 +181,15 @@ function addDivisionEvent() {
 
 function divisionEventHandler() {
     // compound operators
-    if (currentExpression.operator && currentExpression.currentOperand) {
+    if (currentExpression.previousOperand !== null &&
+        currentExpression.operator &&
+        currentExpression.currentOperand !== null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    currentExpression.operator = '/';
+    if (currentExpression.previousOperand !== null) {
+        currentExpression.operator = '/';
+    }
 }
 
 function addMultiplicationEvent() {
@@ -173,11 +200,15 @@ function addMultiplicationEvent() {
 
 function multiplicationEventHandler() {
     // compound operators
-    if (currentExpression.operator && currentExpression.currentOperand) {
+    if (currentExpression.previousOperand !== null &&
+        currentExpression.operator &&
+        currentExpression.currentOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    currentExpression.operator = '*';
+    if (currentExpression.previousOperand !== null) {
+        currentExpression.operator = '*';
+    }
 }
 
 function addSubtractionEvent() {
@@ -188,11 +219,15 @@ function addSubtractionEvent() {
 
 function subtractionEventHandler() {
     // compound operators
-    if (currentExpression.operator && currentExpression.currentOperand) {
+    if (currentExpression.previousOperand !== null &&
+        currentExpression.operator &&
+        currentExpression.currentOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    currentExpression.operator = '-';
+    if (currentExpression.previousOperand !== null) {
+        currentExpression.operator = '-';
+    }
 }
 
 function addAdditionEvent() {
@@ -203,11 +238,15 @@ function addAdditionEvent() {
 
 function additionEventHandler() {
     // compound operators
-    if (currentExpression.operator && currentExpression.currentOperand) {
+    if (currentExpression.previousOperand !== null &&
+        currentExpression.operator &&
+        currentExpression.currentOperand != null) {
         equalsEventHandler();
     }
     currentExpression.emptyDisplayFlag = true;
-    currentExpression.operator = '+';
+    if (currentExpression.previousOperand !== null) {
+        currentExpression.operator = '+';
+    }
 }
 
 function addPlusMinusEvent() {
@@ -218,6 +257,9 @@ function addPlusMinusEvent() {
 
 function plusMinusEventHandler() {
     const output = document.getElementById("result");
+    if (output.textContent == ERROR_DIVISION_BY_ZERO) {
+        return;
+    }
     if (output.textContent[0] === '-') {
         output.textContent = output.textContent.slice(1);
     } else if (output.textContent[0] !== '0' || output.textContent.length >= 2) {
@@ -240,6 +282,10 @@ function addCommaEvent() {
 
 function commaEventHandler() {
     const output = document.getElementById("result");
+    if (currentExpression.previouslyPressedEquals === true) {
+        allClearEventHandler();
+        output.textContent = '0';
+    }
     if (output.textContent.length < MAX_NUM_DIGITS && output.textContent.search(/\./) === -1) {
         output.textContent += '.';
     }
@@ -268,6 +314,26 @@ function removeLastDigit(number) {
 
 function backspaceEventHandler() {
     const output = document.getElementById("result");
+    if (output.textContent === ERROR_DIVISION_BY_ZERO) {
+        allClearEventHandler();
+    }
+
+    if (currentExpression.previouslyPressedEquals === true) {
+        return;
+    }
+
+    // case: if expression has operator, but the second operand is null, SHOULD NOT remove ANY digits:
+    if (currentExpression.operator && currentExpression.currentOperand === null) {
+        return;
+    }
+
+    // check if there is nothing after '.' or just trailing zeros
+    const indexOfComma = output.textContent.indexOf('.');
+    if (/^0*$/.test(output.textContent.slice(indexOfComma + 1))) {
+        output.textContent = output.textContent.slice(0, -1);
+        return;
+    }
+
     output.textContent = output.textContent.slice(0, -1);
     if (output.textContent.length === 2 && output.textContent === "-0") {
         output.textContent = '0';
@@ -295,6 +361,7 @@ function allClearEventHandler() {
     const output = document.getElementById("result");
     output.textContent = '0';
     resetCurrentExpression();
+    currentExpression.previousOperand = 0;
 }
 
 function keyEventClick(key) {
